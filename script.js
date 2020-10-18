@@ -16,6 +16,11 @@ let currentPrice = null
 let numSharesBought = 0
 let autoNumSharesBought = 0
 
+window.onkeydown = function(e) {
+  if (e.keyCode === 66) buyEl.click() // "b" key pressed = click "buy" button
+  else if (e.keyCode === 78) nextEl.click() // "n" key pressed = click "next" button
+}
+
 function getCsv(cb) {
   const request = new XMLHttpRequest();
   request.open('GET', 'data/VTI.csv', true);
