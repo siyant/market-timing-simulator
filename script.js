@@ -69,10 +69,10 @@ function updateUi() {
   else buyEl.disabled = false
 
   const usedCash = (timeIndex+1) * CASH_UNIT - cash
-  statusEl.innerHTML = `You've bought ${numSharesBought.toFixed(2)} shares for $${usedCash} so far (average price $${(usedCash/numSharesBought).toFixed(2)})`
+  statusEl.innerHTML = `You've bought: ${numSharesBought.toFixed(2)} shares for $${usedCash} (average price $${numSharesBought ? (usedCash/numSharesBought).toFixed(2) : '0'})`
   
   const autoUsedCash = (timeIndex+1) * CASH_UNIT
-  autoStatusEl.innerHTML = `Auto buyer has bought ${autoNumSharesBought.toFixed(2)} shares for $${autoUsedCash} (average price $${(autoUsedCash/autoNumSharesBought).toFixed(2)})`
+  autoStatusEl.innerHTML = `Auto buyer has bought: ${autoNumSharesBought.toFixed(2)} shares for $${autoUsedCash} (average price $${(autoUsedCash/autoNumSharesBought).toFixed(2)})`
 
   priceEl.innerHTML = `Current share price is: $${currentPrice}`
 

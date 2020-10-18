@@ -7,19 +7,32 @@
   <title>Market Timing Simulator</title>
   <meta name="description" content="Market Timing Simulator">
   <meta name="author" content="Si-Yan">
+
+  <!-- Google Fonts -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
+
+  <!-- CSS Reset -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css">
+
+  <!-- Milligram CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.css">
+
 </head>
 
 <body>
+<div class="container" style="padding: 4rem 0;">
   <h2 id="cash"></h2>
+  <h2 id="price"></h2>
+
   <p id="status"></p>
   <p id="autoStatus"></p>
 
-  <h2 id="price"></h2>
 
   <button id="buy">Buy</button>
-  <button id="next">Next</button>
+  <button id="next" class="button-outline">Next</button>
 
-  <h2 id="result"></h2>
+  <h4 id="result"></h4>
+</div>
 
   <script src="script.js"></script>
 </body>
