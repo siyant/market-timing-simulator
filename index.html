@@ -17,12 +17,18 @@
   <!-- Milligram CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.css">
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.bundle.min.js" integrity="sha256-TQq84xX6vkwR0Qs1qH5ADkP+MvH0W+9E7TdHJsoIQiM=" crossorigin="anonymous"></script>
+
 </head>
 
 <body>
-<div class="container" style="padding: 4rem 0;">
+<div class="container" style="padding: 2rem 2rem;">
   <h2 id="cash"></h2>
   <h2 id="price"></h2>
+
+  <div class="chart-container" style="position: relative; height:240px; width:400px">
+    <canvas id="priceChart"></canvas>
+</div>
 
   <p id="status"></p>
   <p id="autoStatus"></p>

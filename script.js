@@ -1,4 +1,5 @@
-const NUM_MONTHS = 12
+const MIN_NUM_MONTHS = 24
+const PREV_MONTHS_DISPLAY = 12
 const CASH_UNIT = 1000
 
 const cashEl = document.getElementById("cash")
@@ -9,7 +10,10 @@ const buyEl = document.getElementById("buy")
 const nextEl = document.getElementById("next")
 const resultEl = document.getElementById("result")
 
-let stockData = []
+let stockPriceChart = null
+let previousStockDatePrice = []
+let stockDatePrice = []
+
 let cash = CASH_UNIT
 let timeIndex = 0
 let currentPrice = null
@@ -37,16 +41,71 @@ function getCsv(cb) {
 
 function parseCsv(csvText) {
   const csvLines = csvText.split("\n")
-  const data = csvLines.slice(1).map(line => parseFloat(line.split(",")[1]).toFixed(2))
+  const csvData = csvLines.slice(1).map(line => line.split(","))
 
-  // select random consecutive NUM_MONTHS period
-  randomStartMonth = Math.round(Math.random() * (data.length - NUM_MONTHS))
-  stockData = data.slice(randomStartMonth, randomStartMonth + NUM_MONTHS)
+  // select random start month
+  startMonth = PREV_MONTHS_DISPLAY + Math.round(Math.random() * (csvData.length - MIN_NUM_MONTHS - PREV_MONTHS_DISPLAY))
+  console.log({startMonth})
+
+  // populate stockDatePrice: [{ month: -12, price: "10.00"}, ...] until end of data
+  previousStockDatePrice = []
+  stockDatePrice = []
+  for (let i = -PREV_MONTHS_DISPLAY; i < 0; i++) {
+    previousStockDatePrice.push({ 
+      month: i,
+      price: parseFloat(csvData[startMonth+i][1]).toFixed(2)
+    })
+  }
+  for (let i = 0; startMonth+i < csvData.length; i++) {
+    stockDatePrice.push({ 
+      month: i,
+      price: parseFloat(csvData[startMonth+i][1]).toFixed(2)
+    })
+  }
+  console.log({stockDatePrice})
+}
+
+function updatePriceChart() {
+  // show prices up to the current month
+  const dataToDisplay = previousStockDatePrice.concat(stockDatePrice.slice(0, timeIndex+1))
+  
+  if (!stockPriceChart) {
+    // init chart
+    var ctx = document.getElementById('priceChart')
+    stockPriceChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: dataToDisplay.map((d) => d.month),
+        datasets: [{
+          label: "VTI",
+          data: dataToDisplay.map((d) => d.price),
+          lineTension: 0,
+          pointRadius: 0,
+          fill: false,
+          borderColor: "#3FBBB6",
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        tooltips: {
+          mode: 'index',
+          intersect: false,
+        },
+      }
+    });
+  } else {
+    // update chart data
+    stockPriceChart.data.labels = dataToDisplay.map((d) => d.month)
+    stockPriceChart.data.datasets[0].data = dataToDisplay.map((d) => d.price)
+    stockPriceChart.update()
+  }
 }
 
 function onGetCsv(csvText) {
   parseCsv(csvText)
-  currentPrice = stockData[timeIndex]
+  currentPrice = stockDatePrice[timeIndex].price
   autoNumSharesBought = CASH_UNIT/currentPrice
   updateUi()
 
@@ -59,7 +118,7 @@ function onGetCsv(csvText) {
 
   nextEl.onclick = function() {
     timeIndex += 1
-    currentPrice = stockData[timeIndex]
+    currentPrice = stockDatePrice[timeIndex].price
     autoNumSharesBought += CASH_UNIT/currentPrice
     console.log(`Auto buyer bought ${(CASH_UNIT/currentPrice).toFixed(2)} shares`)
 
@@ -79,9 +138,11 @@ function updateUi() {
   const autoUsedCash = (timeIndex+1) * CASH_UNIT
   autoStatusEl.innerHTML = `Auto buyer has bought: ${autoNumSharesBought.toFixed(2)} shares for $${autoUsedCash} (average price $${(autoUsedCash/autoNumSharesBought).toFixed(2)})`
 
-  priceEl.innerHTML = `Current share price is: $${currentPrice}`
+  priceEl.innerHTML = `Current share price is: <b>$${currentPrice}</b>`
 
-  if (timeIndex+1 === NUM_MONTHS) {
+  updatePriceChart()
+
+  if (timeIndex+1 === stockDatePrice.length) {
     nextEl.disabled = true
 
     const finalSharesValue = numSharesBought * currentPrice
@@ -91,7 +152,6 @@ function updateUi() {
     Auto buyer has $${autoNetWorth.toFixed(2)} in shares.<br/>
     You did ${(Math.abs(netWorth/autoNetWorth-1)*100).toFixed(0)}% ${netWorth >= autoNetWorth ? 'better':'worse'} than the auto buyer`
   }
-  
 }
 
 getCsv(onGetCsv)
