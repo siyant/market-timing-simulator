@@ -17,33 +17,54 @@
   <!-- Milligram CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.css">
 
+  <!-- Custom styling -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.bundle.min.js" integrity="sha256-TQq84xX6vkwR0Qs1qH5ADkP+MvH0W+9E7TdHJsoIQiM=" crossorigin="anonymous"></script>
 
 </head>
 
 <body>
 <div class="container" style="padding: 2rem 2rem;">
-  <h2 id="cash"></h2>
-  <h2 id="price"></h2>
+  <h2 id="time"></h2>
 
-  <div class="chart-container" style="position: relative; height:240px; width:400px; margin-bottom: 2rem;">
-    <canvas id="priceChart"></canvas>
+  <p>You own <span id="numShares">0</span> shares, with total value $<span id="sharesValue">0</span></p>
+  <h4>You have $<span id="cash">0</span> cash</h4>
+
+  <h4>Current share price: $<span id="price"></span></h4>
+
+  <button id="buy" class="button-large">Buy (B)</button>
+  <button id="next" class="button-outline button-large">Next (N)</button>
+
+  <br><br>
+
+  <div class="accordion">Share price chart</div>
+  <div class="accordion-content">
+    <div class="chart-container" style="position: relative; height:240px; width:400px; margin-bottom: 2rem;">
+      <canvas id="priceChart"></canvas>
+    </div>
   </div>
 
-  <p>
-    <span id="status"></span><br>
-    <span id="autoStatus"></span>
-  </p>
+  <div class="accordion">Shares buying history</div>
+  <div class="accordion-content">
+    <p>
+      <span id="status"></span><br>
+      <span id="autoStatus"></span>
+    </p>
+  </div>
 
-  <button id="buy">Buy</button>
-  <button id="next" class="button-outline">Next</button>
+  <div class="accordion">Net worth comparison with auto-buying strategy</div>
+  <div class="accordion-content">
 
-  <h4 id="result"></h4>
-  <div class="chart-container" style="position: relative; height:400px; width:600px">
-    <canvas id="assetChart"></canvas>
+    <h4 id="result"></h4>
+    <div class="chart-container" style="position: relative; height:400px; width:600px">
+      <canvas id="assetChart"></canvas>
+    </div>
   </div>
 </div>
 
   <script src="script.js"></script>
+  <script src="accordion.js"></script>
 </body>
 </html>

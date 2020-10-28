@@ -2,7 +2,11 @@ const MIN_NUM_MONTHS = 24
 const PREV_MONTHS_DISPLAY = 12
 const CASH_UNIT = 1000
 
+const timeEl = document.getElementById("time")
+const numSharesEl = document.getElementById("numShares")
+const sharesValueEl = document.getElementById("sharesValue")
 const cashEl = document.getElementById("cash")
+
 const statusEl = document.getElementById("status")
 const autoStatusEl = document.getElementById("autoStatus")
 const priceEl = document.getElementById("price")
@@ -203,9 +207,13 @@ function onGetCsv(csvText) {
 }
 
 function updateUi() {
-  cashEl.innerHTML = `Month ${timeIndex+1}: You have $${cash}`
+  timeEl.innerHTML = `Month ${timeIndex + 1}`
+  cashEl.innerHTML = cash
   if (cash === 0) buyEl.disabled = true
   else buyEl.disabled = false
+
+  numShares.innerHTML = numSharesBought.toFixed(2)
+  sharesValue.innerHTML = (numSharesBought * currentPrice).toFixed(2)
 
   const usedCash = (timeIndex+1) * CASH_UNIT - cash
   statusEl.innerHTML = `You've bought: ${numSharesBought.toFixed(2)} shares for $${usedCash} (average price $${numSharesBought ? (usedCash/numSharesBought).toFixed(2) : '0'})`
@@ -213,7 +221,7 @@ function updateUi() {
   const autoUsedCash = (timeIndex+1) * CASH_UNIT
   autoStatusEl.innerHTML = `Auto buyer has bought: ${autoNumSharesBought.toFixed(2)} shares for $${autoUsedCash} (average price $${(autoUsedCash/autoNumSharesBought).toFixed(2)})`
 
-  priceEl.innerHTML = `Current share price is: <b>$${currentPrice}</b>`
+  priceEl.innerHTML = currentPrice
 
   updatePriceChart()
   updateAssetChart()

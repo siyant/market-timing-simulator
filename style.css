@@ -1,0 +1,50 @@
+.button-large {
+  font-size: 1.6rem;
+  height: 4.5rem;
+  line-height: 4.5rem;
+  padding: 0 2rem;
+  min-width: 150px;
+}
+
+/* accordion */
+.accordion, .accordion-content {
+  width: 100%;
+}
+
+.accordion {
+  background-color: #eee;
+  cursor: pointer;
+  margin-top: 4px;
+  padding: 0.8rem 1.6rem;
+  border-radius: 4px;
+}
+
+.accordion:after {
+  content: '\02795'; /* + sign */
+  font-size: 13px;
+  color: #777;
+  float: right;
+  margin-left: 5px;
+  margin-top: 3px;
+}
+
+.accordion.active {
+  border-radius: 4px 4px 0 0;
+}
+
+.accordion.active:after {
+  content: "\2796"; /* - sign */
+}
+
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  background-color: #fafafa;
+  border-radius: 0 0 4px 4px;
+  transition: max-height 0.2s ease-out;
+}
+
+.accordion-content.active {
+  max-height: initial;
+  padding: 1rem 1.6rem;
+}
