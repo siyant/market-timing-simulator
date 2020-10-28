@@ -26,18 +26,22 @@
   <h2 id="cash"></h2>
   <h2 id="price"></h2>
 
-  <div class="chart-container" style="position: relative; height:240px; width:400px">
+  <div class="chart-container" style="position: relative; height:240px; width:400px; margin-bottom: 2rem;">
     <canvas id="priceChart"></canvas>
-</div>
+  </div>
 
-  <p id="status"></p>
-  <p id="autoStatus"></p>
-
+  <p>
+    <span id="status"></span><br>
+    <span id="autoStatus"></span>
+  </p>
 
   <button id="buy">Buy</button>
   <button id="next" class="button-outline">Next</button>
 
   <h4 id="result"></h4>
+  <div class="chart-container" style="position: relative; height:400px; width:600px">
+    <canvas id="assetChart"></canvas>
+  </div>
 </div>
 
   <script src="script.js"></script>

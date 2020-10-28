@@ -13,8 +13,10 @@ const resultEl = document.getElementById("result")
 let stockPriceChart = null
 let previousStockDatePrice = []
 let stockDatePrice = []
+let assetChart = null
+let assetHistory = []
 
-let cash = CASH_UNIT
+let cash = 0
 let timeIndex = 0
 let currentPrice = null
 let numSharesBought = 0
@@ -103,26 +105,99 @@ function updatePriceChart() {
   }
 }
 
+function updateAssetChart() {
+  // [{month: 1, user: {cash, numShares, sharesValue}, auto: {numShares, sharesValue}}]
+
+  if (!assetChart) {
+    // init chart
+    var ctx = document.getElementById('assetChart')
+    assetChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: assetHistory.map(d => d.month),
+        datasets: [{
+          label: "Your shares value",
+          data: assetHistory.map((d) => d.user.sharesValue),
+          fill: "origin",
+          lineTension: 0,
+          pointRadius: 0,
+          // borderColor: "#3FBBB6",
+          backgroundColor: "#a8b7e4",
+          // borderWidth: 2
+        }, {
+          label: "Your shares+cash",
+          data: assetHistory.map((d) => d.user.cash),
+          fill: 0,
+          lineTension: 0,
+          pointRadius: 0,
+          borderColor: "#4d71ef",
+          backgroundColor: "#8896cd",
+          borderWidth: 3
+        }, {
+          label: "Auto buyer shares value",
+          data: assetHistory.map((d) => d.auto.sharesValue),
+          lineTension: 0,
+          pointRadius: 0,
+          fill: false,
+          borderColor: "#9B4DCA",
+          borderWidth: 3
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        tooltips: {
+          mode: 'index',
+          intersect: false,
+        },
+        scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero: true
+            }
+          }]
+        }
+      }
+    });
+  } else {
+    // update chart data
+    assetChart.data.labels = assetHistory.map(d => d.month)
+    assetChart.data.datasets[0].data = assetHistory.map((d) => d.user.sharesValue)
+    assetChart.data.datasets[1].data = assetHistory.map((d) => d.user.cash + d.user.sharesValue)
+    assetChart.data.datasets[2].data = assetHistory.map((d) => d.auto.sharesValue)
+    assetChart.update()
+  }
+}
+
+function setupMonth() {
+  cash += CASH_UNIT
+  currentPrice = stockDatePrice[timeIndex].price
+  autoNumSharesBought += CASH_UNIT/currentPrice
+  console.log(`Auto buyer bought ${(CASH_UNIT/currentPrice).toFixed(2)} shares`)
+
+  assetHistory.push({
+    month: timeIndex,
+    user: {cash: cash, numShares: numSharesBought, sharesValue: Math.round(numSharesBought*currentPrice)},
+    auto: {numShares: autoNumSharesBought, sharesValue: Math.round(autoNumSharesBought*currentPrice)}
+  })
+}
+
 function onGetCsv(csvText) {
   parseCsv(csvText)
-  currentPrice = stockDatePrice[timeIndex].price
-  autoNumSharesBought = CASH_UNIT/currentPrice
+  setupMonth()
   updateUi()
 
   buyEl.onclick = function() {
     cash -= CASH_UNIT
     console.log(`You bought ${(CASH_UNIT/currentPrice).toFixed(2)} shares`)
     numSharesBought += CASH_UNIT/currentPrice
+    assetHistory[timeIndex].user = { cash: cash, numShares: numSharesBought, sharesValue: Math.round(numSharesBought*currentPrice) }
     updateUi()
   }
 
   nextEl.onclick = function() {
     timeIndex += 1
-    currentPrice = stockDatePrice[timeIndex].price
-    autoNumSharesBought += CASH_UNIT/currentPrice
-    console.log(`Auto buyer bought ${(CASH_UNIT/currentPrice).toFixed(2)} shares`)
-
-    cash += CASH_UNIT
+    setupMonth()
     updateUi()
   }
 }
@@ -141,6 +216,7 @@ function updateUi() {
   priceEl.innerHTML = `Current share price is: <b>$${currentPrice}</b>`
 
   updatePriceChart()
+  updateAssetChart()
 
   if (timeIndex+1 === stockDatePrice.length) {
     nextEl.disabled = true
