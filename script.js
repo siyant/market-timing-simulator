@@ -6,6 +6,7 @@ const timeEl = document.getElementById("time")
 const numSharesEl = document.getElementById("numShares")
 const sharesValueEl = document.getElementById("sharesValue")
 const cashEl = document.getElementById("cash")
+const sharesHistoryTableEl = document.getElementById("sharesHistory").getElementsByTagName('tbody')[0]
 
 const statusEl = document.getElementById("status")
 const autoStatusEl = document.getElementById("autoStatus")
@@ -23,8 +24,8 @@ let assetHistory = []
 let cash = 0
 let timeIndex = 0
 let currentPrice = null
-let numSharesBought = 0
-let autoNumSharesBought = 0
+let totalShares = 0
+let autoTotalShares = 0
 
 window.onkeydown = function(e) {
   if (e.keyCode === 66) buyEl.click() // "b" key pressed = click "buy" button
@@ -109,6 +110,17 @@ function updatePriceChart() {
   }
 }
 
+function updateSharesHistoryTable() {
+  const latestMonth = assetHistory[assetHistory.length - 1]
+  const row = sharesHistoryTableEl.insertRow()
+  const values = [latestMonth.month, latestMonth.price, latestMonth.user.sharesBought.toFixed(2), latestMonth.auto.sharesBought.toFixed(2)]
+  for (let v of values) {
+    let cell = row.insertCell();
+    let text = document.createTextNode(v);
+    cell.appendChild(text);
+  }
+}
+
 function updateAssetChart() {
   // [{month: 1, user: {cash, numShares, sharesValue}, auto: {numShares, sharesValue}}]
 
@@ -176,13 +188,15 @@ function updateAssetChart() {
 function setupMonth() {
   cash += CASH_UNIT
   currentPrice = stockDatePrice[timeIndex].price
-  autoNumSharesBought += CASH_UNIT/currentPrice
-  console.log(`Auto buyer bought ${(CASH_UNIT/currentPrice).toFixed(2)} shares`)
+  autoSharesBought = CASH_UNIT/currentPrice
+  autoTotalShares += autoSharesBought
+  console.log(`Auto buyer bought ${(autoSharesBought).toFixed(2)} shares`)
 
   assetHistory.push({
-    month: timeIndex,
-    user: {cash: cash, numShares: numSharesBought, sharesValue: Math.round(numSharesBought*currentPrice)},
-    auto: {numShares: autoNumSharesBought, sharesValue: Math.round(autoNumSharesBought*currentPrice)}
+    month: timeIndex + 1,
+    price: currentPrice,
+    user: {sharesBought: 0, totalShares, cash, sharesValue: Math.round(totalShares*currentPrice)},
+    auto: {sharesBought: autoSharesBought, totalShares: autoTotalShares, sharesValue: Math.round(autoTotalShares*currentPrice)}
   })
 }
 
@@ -193,13 +207,21 @@ function onGetCsv(csvText) {
 
   buyEl.onclick = function() {
     cash -= CASH_UNIT
-    console.log(`You bought ${(CASH_UNIT/currentPrice).toFixed(2)} shares`)
-    numSharesBought += CASH_UNIT/currentPrice
-    assetHistory[timeIndex].user = { cash: cash, numShares: numSharesBought, sharesValue: Math.round(numSharesBought*currentPrice) }
+    const sharesBought = CASH_UNIT/currentPrice
+    console.log(`You bought ${(sharesBought).toFixed(2)} shares`)
+    totalShares += sharesBought
+
+    assetHistory[timeIndex].user = {
+      sharesBought: assetHistory[timeIndex].user.sharesBought + sharesBought, 
+      totalShares, 
+      cash,
+      sharesValue: Math.round(totalShares*currentPrice)
+    }
     updateUi()
   }
 
   nextEl.onclick = function() {
+    updateSharesHistoryTable()
     timeIndex += 1
     setupMonth()
     updateUi()
@@ -212,14 +234,14 @@ function updateUi() {
   if (cash === 0) buyEl.disabled = true
   else buyEl.disabled = false
 
-  numShares.innerHTML = numSharesBought.toFixed(2)
-  sharesValue.innerHTML = (numSharesBought * currentPrice).toFixed(2)
+  numShares.innerHTML = totalShares.toFixed(2)
+  sharesValue.innerHTML = (totalShares * currentPrice).toFixed(2)
 
   const usedCash = (timeIndex+1) * CASH_UNIT - cash
-  statusEl.innerHTML = `You've bought: ${numSharesBought.toFixed(2)} shares for $${usedCash} (average price $${numSharesBought ? (usedCash/numSharesBought).toFixed(2) : '0'})`
+  statusEl.innerHTML = `You've bought: ${totalShares.toFixed(2)} shares for $${usedCash} (average price $${totalShares ? (usedCash/totalShares).toFixed(2) : '0'})`
   
   const autoUsedCash = (timeIndex+1) * CASH_UNIT
-  autoStatusEl.innerHTML = `Auto buyer has bought: ${autoNumSharesBought.toFixed(2)} shares for $${autoUsedCash} (average price $${(autoUsedCash/autoNumSharesBought).toFixed(2)})`
+  autoStatusEl.innerHTML = `Auto-buying strategy has bought: ${autoTotalShares.toFixed(2)} shares for $${autoUsedCash} (average price $${(autoUsedCash/autoTotalShares).toFixed(2)})`
 
   priceEl.innerHTML = currentPrice
 
@@ -229,9 +251,9 @@ function updateUi() {
   if (timeIndex+1 === stockDatePrice.length) {
     nextEl.disabled = true
 
-    const finalSharesValue = numSharesBought * currentPrice
+    const finalSharesValue = totalShares * currentPrice
     const netWorth = cash + finalSharesValue
-    const autoNetWorth = autoNumSharesBought * currentPrice
+    const autoNetWorth = autoTotalShares * currentPrice
     resultEl.innerHTML = `Your net worth is $${netWorth.toFixed(2)} ($${cash} cash, $${finalSharesValue.toFixed(2)} in shares).<br/>
     Auto buyer has $${autoNetWorth.toFixed(2)} in shares.<br/>
     You did ${(Math.abs(netWorth/autoNetWorth-1)*100).toFixed(0)}% ${netWorth >= autoNetWorth ? 'better':'worse'} than the auto buyer`
