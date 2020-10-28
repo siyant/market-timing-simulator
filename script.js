@@ -2,23 +2,25 @@ const MIN_NUM_MONTHS = 24
 const PREV_MONTHS_DISPLAY = 12
 const CASH_UNIT = 1000
 
+// main UI elements
 const timeEl = document.getElementById("time")
 const numSharesEl = document.getElementById("numShares")
 const sharesValueEl = document.getElementById("sharesValue")
 const cashEl = document.getElementById("cash")
-const sharesHistoryTableEl = document.getElementById("sharesHistory").getElementsByTagName('tbody')[0]
-
-const statusEl = document.getElementById("status")
-const autoStatusEl = document.getElementById("autoStatus")
 const priceEl = document.getElementById("price")
 const buyEl = document.getElementById("buy")
 const nextEl = document.getElementById("next")
+
+// UI elements for additional info (in accordion)
+let stockPriceChart = null
+const sharesHistoryTableEl = document.getElementById("sharesHistory").getElementsByTagName('tbody')[0]
+const statusEl = document.getElementById("status")
+const autoStatusEl = document.getElementById("autoStatus")
+let assetChart = null
 const resultEl = document.getElementById("result")
 
-let stockPriceChart = null
 let previousStockDatePrice = []
 let stockDatePrice = []
-let assetChart = null
 let assetHistory = []
 
 let cash = 0
@@ -132,30 +134,30 @@ function updateAssetChart() {
       data: {
         labels: assetHistory.map(d => d.month),
         datasets: [{
-          label: "Your shares value",
-          data: assetHistory.map((d) => d.user.sharesValue),
-          fill: "origin",
-          lineTension: 0,
-          pointRadius: 0,
-          // borderColor: "#3FBBB6",
-          backgroundColor: "#a8b7e4",
-          // borderWidth: 2
-        }, {
-          label: "Your shares+cash",
-          data: assetHistory.map((d) => d.user.cash),
-          fill: 0,
-          lineTension: 0,
-          pointRadius: 0,
-          borderColor: "#4d71ef",
-          backgroundColor: "#8896cd",
-          borderWidth: 3
-        }, {
           label: "Auto buyer shares value",
           data: assetHistory.map((d) => d.auto.sharesValue),
           lineTension: 0,
           pointRadius: 0,
           fill: false,
           borderColor: "#9B4DCA",
+          borderWidth: 3
+        }, {
+          label: "Your shares value",
+          data: assetHistory.map((d) => d.user.sharesValue),
+          fill: "origin",
+          lineTension: 0,
+          pointRadius: 0,
+          borderColor: "rgba(0,0,0,0)",
+          backgroundColor: "#a8b7e4",
+          borderWidth: 0
+        }, {
+          label: "Your shares+cash",
+          data: assetHistory.map((d) => d.user.cash),
+          fill: "origin",
+          lineTension: 0,
+          pointRadius: 0,
+          borderColor: "#4d71ef",
+          backgroundColor: "#8896cd",
           borderWidth: 3
         }]
       },
@@ -178,9 +180,9 @@ function updateAssetChart() {
   } else {
     // update chart data
     assetChart.data.labels = assetHistory.map(d => d.month)
-    assetChart.data.datasets[0].data = assetHistory.map((d) => d.user.sharesValue)
-    assetChart.data.datasets[1].data = assetHistory.map((d) => d.user.cash + d.user.sharesValue)
-    assetChart.data.datasets[2].data = assetHistory.map((d) => d.auto.sharesValue)
+    assetChart.data.datasets[0].data = assetHistory.map((d) => d.auto.sharesValue)
+    assetChart.data.datasets[1].data = assetHistory.map((d) => d.user.sharesValue)
+    assetChart.data.datasets[2].data = assetHistory.map((d) => d.user.cash + d.user.sharesValue)
     assetChart.update()
   }
 }
